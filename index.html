@@ -11,11 +11,15 @@
     .wrap { max-width: 880px; margin: 0 auto; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 16px; }
+    /* translateZ(0) forces each card onto its own compositing layer so that
+       overflow:hidden actually clips the rotated ribbon (a transformed child
+       otherwise escapes an un-composited ancestor's clip in WebKit/Blink). */
     .card { display: block; background: white; border: 1px solid #d9d6cf;
             border-radius: 12px; padding: 24px; text-decoration: none; color: inherit;
             position: relative; overflow: hidden; min-height: 168px;
+            transform: translateZ(0);
             transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    .card:hover { transform: translateY(-2px) translateZ(0); box-shadow: 0 6px 20px rgba(0,0,0,0.06);
                   border-color: #2d5a27; }
     .card h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
     .card:hover h2 { color: #2d5a27; }
@@ -69,6 +73,11 @@
         <a class="ribbon ribbon--github" href="https://github.com/mrinalinisin/TV-Plot-Maps" target="_blank" rel="noopener">Fork me on GitHub</a>
         <h2>TV Plot Maps</h2>
         <div class="desc">Interactive who's-who diagrams for classic detective TV, starting with Agatha Christie's Poirot.</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="blog/" aria-label="Blog"></a>
+        <h2>Blog</h2>
+        <div class="desc">Notes, essays, and assorted writing.</div>
       </div>
     </div>
 
