@@ -159,6 +159,94 @@ def load_post(slug):
     }
 
 
+def post_files():
+    """Every published post HTML file (skips the listing index)."""
+    if not os.path.isdir(BLOG):
+        return []
+    return [os.path.join(BLOG, n) for n in sorted(os.listdir(BLOG))
+            if n.endswith(".html") and n != "index.html"]
+
+
+def list_images():
+    if not os.path.isdir(IMAGES):
+        return []
+    names = sorted(n for n in os.listdir(IMAGES)
+                   if os.path.isfile(os.path.join(IMAGES, n)) and not n.startswith("."))
+    # Map each image to the post slugs that reference it, by scanning the
+    # rendered HTML (the human-readable /blog/images/<name> in each post body).
+    usage = {n: [] for n in names}
+    for path in post_files():
+        with open(path, encoding="utf-8") as f:
+            src = f.read()
+        slug = os.path.basename(path)[:-5]
+        for n in names:
+            if "/blog/images/" + n in src:
+                usage[n].append(slug)
+    out = []
+    for n in names:
+        st = os.stat(os.path.join(IMAGES, n))
+        out.append({"name": n, "size": st.st_size,
+                    "url": "/blog/images/" + n, "used_in": usage[n]})
+    return out
+
+
+def update_image_refs(old_name, new_name):
+    """Repoint every reference to old_name at new_name, in both the rendered
+    body HTML and the base64 Markdown source preserved in each post. Returns
+    the number of posts changed."""
+    old_ref = "/blog/images/" + old_name
+    new_ref = "/blog/images/" + new_name
+    count = 0
+    for path in post_files():
+        with open(path, encoding="utf-8") as f:
+            src = f.read()
+        changed = [old_ref in src]  # list so the nested repl can flip it
+        src = src.replace(old_ref, new_ref)  # rendered <img src> occurrences
+
+        def repl(m):  # the base64-encoded Markdown isn't touched by the replace above
+            md = base64.b64decode(m.group(1)).decode("utf-8")
+            if old_ref not in md:
+                return m.group(0)
+            changed[0] = True
+            md = md.replace(old_ref, new_ref)
+            return "<!--EDIT:post:b64:" + base64.b64encode(
+                md.encode("utf-8")).decode("ascii") + "-->"
+
+        src = re.sub(r"<!--EDIT:post:b64:(.*?)-->", repl, src, flags=re.S)
+        if changed[0]:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(src)
+            count += 1
+    return count
+
+
+def rename_image(old, new):
+    old = os.path.basename(old or "")
+    src_path = os.path.join(IMAGES, old)
+    if not old or not os.path.isfile(src_path):
+        raise ValueError("no such image: %r" % old)
+    ext = os.path.splitext(old)[1].lower()             # keep the original format
+    stem = slugify(os.path.splitext(os.path.basename(new or ""))[0])
+    if not stem:
+        raise ValueError("invalid new name")
+    new_name = stem + ext
+    if new_name == old:
+        return {"name": old, "updated": 0}
+    if os.path.exists(os.path.join(IMAGES, new_name)):
+        raise ValueError("an image named %s already exists" % new_name)
+    os.rename(src_path, os.path.join(IMAGES, new_name))
+    return {"name": new_name, "updated": update_image_refs(old, new_name)}
+
+
+def delete_image(name):
+    name = os.path.basename(name or "")
+    path = os.path.join(IMAGES, name)
+    if not name or not os.path.isfile(path):
+        raise ValueError("no such image: %r" % name)
+    os.remove(path)
+    return {"name": name}
+
+
 class Handler(SimpleHTTPRequestHandler):
     def _json(self, code, obj):
         body = json.dumps(obj).encode("utf-8")
@@ -168,37 +256,42 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _body(self):
+        length = int(self.headers.get("Content-Length", 0))
+        return json.loads(self.rfile.read(length) or b"{}")
+
     def do_GET(self):
         if self.path.startswith("/api/load"):
             slug = slugify(self.path.split("p=", 1)[1]) if "p=" in self.path else ""
             post = load_post(slug) if slug else None
             return self._json(200 if post else 404, post or {"error": "not found"})
+        if self.path == "/api/images":
+            return self._json(200, {"images": list_images()})
         return super().do_GET()
 
     def do_POST(self):
-        if self.path == "/api/upload":
-            length = int(self.headers.get("Content-Length", 0))
-            try:
-                data = json.loads(self.rfile.read(length) or b"{}")
-                url = save_image(data.get("title", ""), data.get("mime", ""),
-                                 data.get("b64", ""))
-                return self._json(200, {"ok": True, "url": url})
-            except Exception as e:
-                return self._json(500, {"error": str(e)})
-        if self.path != "/api/save":
-            return self._json(404, {"error": "unknown endpoint"})
-        length = int(self.headers.get("Content-Length", 0))
         try:
-            data = json.loads(self.rfile.read(length) or b"{}")
-            title = (data.get("title") or "").strip()
-            if not title:
-                return self._json(400, {"error": "title is required"})
-            date_iso = (data.get("date") or datetime.now().strftime("%Y-%m-%d")).strip()
-            slug = write_post(title, date_iso, data.get("markdown", ""),
-                              data.get("html", ""))
-            return self._json(200, {"ok": True, "slug": slug,
-                                    "url": "/blog/%s.html" % slug})
-        except Exception as e:  # surface the error to the editor UI
+            if self.path == "/api/upload":
+                d = self._body()
+                url = save_image(d.get("title", ""), d.get("mime", ""), d.get("b64", ""))
+                return self._json(200, {"ok": True, "url": url})
+            if self.path == "/api/image/rename":
+                d = self._body()
+                return self._json(200, {"ok": True, **rename_image(d.get("old"), d.get("new"))})
+            if self.path == "/api/image/delete":
+                d = self._body()
+                return self._json(200, {"ok": True, **delete_image(d.get("name"))})
+            if self.path == "/api/save":
+                d = self._body()
+                title = (d.get("title") or "").strip()
+                if not title:
+                    return self._json(400, {"error": "title is required"})
+                date_iso = (d.get("date") or datetime.now().strftime("%Y-%m-%d")).strip()
+                slug = write_post(title, date_iso, d.get("markdown", ""), d.get("html", ""))
+                return self._json(200, {"ok": True, "slug": slug,
+                                        "url": "/blog/%s.html" % slug})
+            return self._json(404, {"error": "unknown endpoint"})
+        except Exception as e:  # surface the error to the editor/gallery UI
             return self._json(500, {"error": str(e)})
 
     def log_message(self, *a):
@@ -209,5 +302,6 @@ if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 5666
     print("Blog save server on http://localhost:%d" % port)
     print("  editor:  http://localhost:%d/editor.html" % port)
+    print("  gallery: http://localhost:%d/gallery.html" % port)
     print("  blog:    http://localhost:%d/blog/" % port)
     ThreadingHTTPServer(("", port), Handler).serve_forever()

@@ -17,6 +17,8 @@
     .bar button { font: inherit; background: #2d5a27; color: #fff; border: 0;
                   border-radius: 6px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
     .bar button:hover { filter: brightness(1.12); }
+    .bar .navlink { color: #8fd17f; text-decoration: none; font-size: 14px; }
+    .bar .navlink:hover { text-decoration: underline; }
     .bar .status { font-size: 13px; color: #a8a29e; }
     .bar .status a { color: #8fd17f; }
     .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 0;
@@ -44,6 +46,7 @@
     <input class="title" id="title" placeholder="Post title" autocomplete="off">
     <input type="date" id="date">
     <button id="save">Save</button>
+    <a class="navlink" href="/gallery.html">Images</a>
     <span class="status" id="status">Draft &middot; Save writes to /blog, then git push to publish</span>
   </div>
   <div class="panes">

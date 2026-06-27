@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image gallery</title>
+  <link rel="stylesheet" href="/assets/blog.css">
+  <style>
+    /* Editor chrome — only loaded locally, never part of a published post. */
+    body { padding: 0; }
+    .bar { position: sticky; top: 0; z-index: 10; display: flex; gap: 16px;
+           align-items: center; flex-wrap: wrap;
+           background: #1a1a1a; color: #fff; padding: 12px 20px; }
+    .bar h1 { font-size: 16px; font-weight: 600; }
+    .bar a { color: #8fd17f; text-decoration: none; font-size: 14px; }
+    .bar a:hover { text-decoration: underline; }
+    .bar .status { font-size: 13px; color: #a8a29e; margin-left: auto; }
+    main.gallery { max-width: 1100px; margin: 0 auto; padding: 28px 20px 64px; }
+    .empty { color: #6b6560; padding: 40px 0; text-align: center; }
+    .grid { display: grid; gap: 18px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .card { border: 1px solid #e3e0d9; border-radius: 10px; overflow: hidden;
+            background: #fff; display: flex; flex-direction: column; }
+    .thumb { height: 150px; background: #f0eee9 repeating-linear-gradient(
+               45deg, #f0eee9 0 10px, #e9e6e0 10px 20px); display: flex;
+             align-items: center; justify-content: center; }
+    .thumb img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 0; }
+    .meta { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+    .meta .name { font-size: 13px; font-weight: 600; word-break: break-all;
+                  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .meta .sub { font-size: 12px; color: #a8a29e; }
+    .meta .used a { color: #2d5a27; }
+    .meta .unused { color: #b08; opacity: .7; }
+    .actions { margin-top: 4px; display: flex; gap: 8px; }
+    .actions button { font: inherit; font-size: 12px; border: 1px solid #d9d6cf;
+                      background: #f7f6f3; color: #1a1a1a; border-radius: 6px;
+                      padding: 5px 10px; cursor: pointer; }
+    .actions button:hover { filter: brightness(0.97); }
+    .actions .del { color: #a11; border-color: #e6c9c9; background: #fbf3f3; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <h1>Image gallery</h1>
+    <a href="/editor.html">← Editor</a>
+    <a href="/blog/">Blog</a>
+    <span class="status" id="status">Loading…</span>
+  </div>
+  <main class="gallery">
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const status = msg => { $('status').textContent = msg; };
+
+    const humanSize = n => n < 1024 ? n + ' B'
+      : n < 1024 * 1024 ? (n / 1024).toFixed(1) + ' KB'
+      : (n / 1024 / 1024).toFixed(1) + ' MB';
+
+    // "used in" line: links to each post, or a muted "unused" note.
+    const usedHtml = used => used.length
+      ? 'Used in ' + used.map(s =>
+          '<a href="/blog/' + s + '.html" target="_blank">' + s + '</a>').join(', ')
+      : '<span class="unused">Unused</span>';
+
+    function card(img) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML =
+        '<div class="thumb"><img src="' + img.url + '" alt="" loading="lazy"></div>' +
+        '<div class="meta">' +
+          '<span class="name"></span>' +
+          '<span class="sub">' + humanSize(img.size) + '</span>' +
+          '<span class="sub used">' + usedHtml(img.used_in) + '</span>' +
+          '<div class="actions">' +
+            '<button class="ren">Rename</button>' +
+            '<button class="del">Delete</button>' +
+          '</div>' +
+        '</div>';
+      el.querySelector('.name').textContent = img.name;  // textContent: no HTML injection
+      el.querySelector('.ren').addEventListener('click', () => rename(img));
+      el.querySelector('.del').addEventListener('click', () => remove(img));
+      return el;
+    }
+
+    async function load() {
+      try {
+        const r = await fetch('/api/images');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || r.status);
+        const grid = $('grid');
+        grid.innerHTML = '';
+        if (!d.images.length) {
+          grid.innerHTML = '<p class="empty">No images yet. Paste one into the editor to upload it.</p>';
+          status('0 images');
+          return;
+        }
+        d.images.forEach(img => grid.appendChild(card(img)));
+        status(d.images.length + ' image' + (d.images.length === 1 ? '' : 's'));
+      } catch (e) { status('Error: ' + e.message); }
+    }
+
+    async function rename(img) {
+      const dot = img.name.lastIndexOf('.');
+      const stem = dot > 0 ? img.name.slice(0, dot) : img.name;
+      const next = prompt('Rename image (extension is kept):', stem);
+      if (next === null || next.trim() === '' || next.trim() === stem) return;
+      status('Renaming…');
+      try {
+        const r = await fetch('/api/image/rename', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ old: img.name, new: next.trim() })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || r.status);
+        await load();
+        status('Renamed to ' + d.name + ' · updated ' + d.updated +
+               ' post' + (d.updated === 1 ? '' : 's'));
+      } catch (e) { status('Rename failed: ' + e.message); }
+    }
+
+    async function remove(img) {
+      const warn = img.used_in.length
+        ? '\n\nWARNING: still used in ' + img.used_in.join(', ') +
+          ' — those posts will show a broken image.'
+        : '';
+      if (!confirm('Delete ' + img.name + '?' + warn)) return;
+      status('Deleting…');
+      try {
+        const r = await fetch('/api/image/delete', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: img.name })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || r.status);
+        await load();
+        status('Deleted ' + d.name);
+      } catch (e) { status('Delete failed: ' + e.message); }
+    }
+
+    load();
+  </script>
+</body>
+</html>
