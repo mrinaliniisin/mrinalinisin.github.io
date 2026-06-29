@@ -1,0 +1,20 @@
+name = "mrinalinisin-push"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# Public, non-secret config:
+[vars]
+VAPID_PUBLIC = "BBl7CjwTobyvrKM1fgcfhH5YujNqIR_5dA6EwNRI7LnFJyAmP9_ja2wdy0fSgFTPWSl2MX1K7yxqfmTfaPT2-XY"
+VAPID_SUBJECT = "mailto:mrinalinisin@users.noreply.github.com"
+ALLOW_ORIGIN = "https://mrinalinisin.github.io"
+
+# KV namespace that stores subscriptions + the latest message.
+# Create it with:  wrangler kv namespace create SUBS
+# then paste the printed id below.
+[[kv_namespaces]]
+binding = "SUBS"
+id = "03f3c294a95c47d68641a314e9dd7ca7"
+
+# Secrets are NOT stored here — set them once with:
+#   wrangler secret put VAPID_PRIVATE      (paste the pkcs8 base64)
+#   wrangler secret put BROADCAST_SECRET   (paste the random token)

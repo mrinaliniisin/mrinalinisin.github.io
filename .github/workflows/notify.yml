@@ -1,0 +1,24 @@
+name: Notify subscribers of new cards
+
+# Fires when index.html changes on main. The script diffs the homepage cards
+# against the previous commit and pushes a notification for any new one.
+on:
+  push:
+    branches: [main]
+    paths: ["index.html"]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2          # need HEAD~1 to diff the cards
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Broadcast new cards
+        env:
+          PUSH_WORKER_URL: ${{ secrets.PUSH_WORKER_URL }}
+          BROADCAST_SECRET: ${{ secrets.BROADCAST_SECRET }}
+        run: python3 .github/scripts/notify_new_cards.py

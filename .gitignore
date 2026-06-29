@@ -6,3 +6,10 @@
 
 # Python bytecode cache (from local http.server preview)
 __pycache__/
+
+# Push setup secrets (never commit)
+*.local.txt
+push-worker/SECRETS.local.txt
+
+# Wrangler local state/cache
+push-worker/.wrangler/

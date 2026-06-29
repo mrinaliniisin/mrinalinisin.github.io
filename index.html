@@ -38,6 +38,15 @@
     .gh:hover { color: #2d5a27; background: #eceae4; }
     .gh svg { width: 18px; height: 18px; display: block; }
     footer { margin-top: 48px; font-size: 12px; color: #a8a29e; text-align: center; }
+    .notify-row { margin-top: 28px; text-align: center; }
+    .notify-btn { font: inherit; font-size: 14px; cursor: pointer;
+                  background: #fff; color: #2d5a27; border: 1px solid #2d5a27;
+                  border-radius: 999px; padding: 9px 18px;
+                  transition: background 0.15s ease, color 0.15s ease; }
+    .notify-btn:hover { background: #2d5a27; color: #fff; }
+    .notify-btn:disabled { opacity: 0.6; cursor: default; }
+    .notify-btn[data-on="1"] { border-color: #a8a29e; color: #6b6560; }
+    .notify-btn[data-on="1"]:hover { background: #6b6560; color: #fff; border-color: #6b6560; }
   </style>
 </head>
 <body>
@@ -90,7 +99,12 @@
       </div>
     </div>
 
+    <div class="notify-row">
+      <button id="notify" class="notify-btn" disabled>🔔 Notify me of new stuff</button>
+    </div>
+
     <footer>&copy; 2026 Mrinalini S &middot; Code licensed under MIT</footer>
   </div>
+  <script src="/push.js" defer></script>
 </body>
 </html>
