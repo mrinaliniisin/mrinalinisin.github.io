@@ -60,7 +60,9 @@ def main():
         req = urllib.request.Request(
             worker + "/broadcast", data=payload, method="POST",
             headers={"Content-Type": "application/json",
-                     "Authorization": "Bearer " + secret})
+                     "Authorization": "Bearer " + secret,
+                     # Cloudflare's edge 403s the default Python-urllib UA as a bot.
+                     "User-Agent": "mrinalinisin-notify/1.0"})
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
                 print("notified %r -> %s %s" % (title, resp.status, resp.read().decode()))
