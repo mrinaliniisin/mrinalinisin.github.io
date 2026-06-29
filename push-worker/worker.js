@@ -90,10 +90,12 @@ export default {
       }));
 
       let sent = 0, pruned = 0, failed = 0, cursor;
+      const failures = [];
       do {
         const list = await env.SUBS.list({ prefix: "sub:", cursor });
         for (const k of list.keys) {
           const sub = JSON.parse(await env.SUBS.get(k.name));
+          const host = (() => { try { return new URL(sub.endpoint).host; } catch { return "?"; } })();
           try {
             const res = await fetch(sub.endpoint, {
               method: "POST",
@@ -101,12 +103,12 @@ export default {
             });
             if (res.status === 404 || res.status === 410) { await env.SUBS.delete(k.name); pruned++; }
             else if (res.ok) sent++;
-            else failed++;
-          } catch { failed++; }
+            else { failed++; failures.push({ host, status: res.status, body: (await res.text()).slice(0, 300) }); }
+          } catch (e) { failed++; failures.push({ host, error: String(e).slice(0, 200) }); }
         }
         cursor = list.list_complete ? null : list.cursor;
       } while (cursor);
-      return json(env, 200, { ok: true, sent, pruned, failed });
+      return json(env, 200, { ok: true, sent, pruned, failed, failures });
     }
 
     if (url.pathname === "/") return new Response("push worker ok", { headers: cors(env) });
