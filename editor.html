@@ -20,6 +20,9 @@
     .bar .navlink { color: #8fd17f; text-decoration: none; font-size: 14px; }
     .bar .navlink:hover { text-decoration: underline; }
     .bar .status { font-size: 13px; color: #a8a29e; }
+    .bar code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                font-size: 0.92em; background: #2a2a2a; color: #e8e6e1;
+                padding: 1px 6px; border-radius: 4px; }
     .bar .status a { color: #8fd17f; }
     .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 0;
              height: calc(100vh - 58px); }
@@ -47,7 +50,7 @@
     <input type="date" id="date">
     <button id="save">Save</button>
     <a class="navlink" href="/gallery.html">Images</a>
-    <span class="status" id="status">Draft &middot; Save writes to /blog, then git push to publish</span>
+    <span class="status" id="status">Draft &middot; Save writes to /blog, then <code>git push</code> to publish</span>
   </div>
   <div class="panes">
     <textarea id="md" placeholder="# Write your post in Markdown&#10;&#10;Type here…"></textarea>
