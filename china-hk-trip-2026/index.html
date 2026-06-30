@@ -71,6 +71,9 @@
     a.tag { text-decoration: none; cursor: pointer; }
     html { scroll-behavior: smooth; }
     .section-title { scroll-margin-top: 1rem; }
+    .look { margin: 0 0 1.5rem; }
+    .look img { max-width: 320px; width: 100%; display: block; border-radius: 8px;
+                border: 1px solid var(--border); }
 
     .dot {
       width: 10px;
@@ -191,7 +194,7 @@
 </header>
 
 <div class="legend">
-  <a class="legend-item" href="#priority"><div class="dot" style="background:var(--tag-buy)"></div> Must buy</a>
+  <a class="legend-item" href="#to-buy"><div class="dot" style="background:var(--tag-buy)"></div> To buy</a>
   <a class="legend-item" href="#fun"><div class="dot" style="background:var(--tag-fun)"></div> Fun stop</a>
   <div class="legend-item"><div class="dot" style="background:var(--tag-browse)"></div> Browse</div>
   <a class="legend-item" href="#muji"><div class="dot" style="background:var(--tag-muji)"></div> MUJI</a>
@@ -209,8 +212,14 @@
 
 <main>
 
-  <!-- PRIORITY SHOPS -->
-  <div class="section-title" id="priority">Priority Shops</div>
+  <!-- LOOK TO RE-CREATE -->
+  <div class="section-title">Look to re-create</div>
+  <figure class="look">
+    <img src="look-to-recreate.jpg" alt="Outfit look to re-create" loading="lazy">
+  </figure>
+
+  <!-- TO BUY -->
+  <div class="section-title" id="to-buy">To buy</div>
   <div class="card-grid">
 
     <div class="card">
