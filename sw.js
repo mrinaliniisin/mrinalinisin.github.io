@@ -1,4 +1,4 @@
-// Service worker for mrinalinisin.github.io push notifications.
+// Service worker for mrinaliniisin.github.io push notifications.
 // Pushes arrive payload-less (the broadcaster only signs, doesn't encrypt), so
 // on each push we fetch the latest card info from the push Worker's /latest.
 
@@ -10,7 +10,7 @@ self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
 
 self.addEventListener("push", event => {
   event.waitUntil((async () => {
-    let data = { title: "mrinalinisin.github.io", body: "Something new was posted", url: "/" };
+    let data = { title: "mrinaliniisin.github.io", body: "Something new was posted", url: "/" };
     try {
       if (event.data) {
         data = { ...data, ...event.data.json() };          // if a payload is ever sent

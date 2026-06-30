@@ -1,4 +1,4 @@
-# Push notifications for mrinalinisin.github.io
+# Push notifications for mrinaliniisin.github.io
 
 When a new card is added to the homepage, subscribers get a browser push
 notification. GitHub Pages can't run code, so the moving parts are:
@@ -65,7 +65,7 @@ Repo → **Settings → Secrets and variables → Actions → New repository sec
 
 Commit and push `index.html`, `push.js`, `sw.js`, and `.github/`. Then:
 
-1. Open https://mrinalinisin.github.io, click **🔔 Notify me of new stuff**, allow.
+1. Open https://mrinaliniisin.github.io, click **🔔 Notify me of new stuff**, allow.
 2. Add a new card (edit `index.html`, push). The Action runs, detects the new
    card, and everyone subscribed gets a notification.
 
@@ -77,7 +77,7 @@ Commit and push `index.html`, `push.js`, `sw.js`, and `.github/`. Then:
 curl -X POST "$PUSH_WORKER_URL/broadcast" \
   -H "Authorization: Bearer $BROADCAST_SECRET" \
   -H "Content-Type: application/json" \
-  -d '{"title":"Hello","body":"Test push","url":"https://mrinalinisin.github.io"}'
+  -d '{"title":"Hello","body":"Test push","url":"https://mrinaliniisin.github.io"}'
 ```
 
 `/broadcast` returns `{sent, pruned, failed}` — `pruned` are dead subscriptions

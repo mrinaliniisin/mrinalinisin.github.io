@@ -1,5 +1,5 @@
 // Cloudflare Worker: subscription store + Web Push broadcaster for
-// mrinalinisin.github.io. Deployed separately from the static site (GitHub
+// mrinaliniisin.github.io. Deployed separately from the static site (GitHub
 // Pages can't run code). See README.md for setup.
 //
 // Endpoints:

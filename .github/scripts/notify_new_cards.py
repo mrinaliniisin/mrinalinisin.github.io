@@ -8,7 +8,7 @@ whose href is new, POSTs {title, body, url} to the push Worker's /broadcast.
 Env:
   PUSH_WORKER_URL   e.g. https://mrinalinisin-push.<sub>.workers.dev
   BROADCAST_SECRET  shared bearer token (matches the Worker secret)
-  SITE_ORIGIN       optional, default https://mrinalinisin.github.io
+  SITE_ORIGIN       optional, default https://mrinaliniisin.github.io
 """
 import html
 import json
@@ -41,7 +41,7 @@ def prev_index():
 def main():
     worker = os.environ["PUSH_WORKER_URL"].rstrip("/")
     secret = os.environ["BROADCAST_SECRET"]
-    origin = os.environ.get("SITE_ORIGIN", "https://mrinalinisin.github.io").rstrip("/")
+    origin = os.environ.get("SITE_ORIGIN", "https://mrinaliniisin.github.io").rstrip("/")
 
     new = cards(open("index.html", encoding="utf-8").read())
     old = cards(prev_index())

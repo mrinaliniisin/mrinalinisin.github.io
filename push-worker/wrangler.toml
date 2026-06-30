@@ -5,8 +5,8 @@ compatibility_date = "2024-11-01"
 # Public, non-secret config:
 [vars]
 VAPID_PUBLIC = "BBl7CjwTobyvrKM1fgcfhH5YujNqIR_5dA6EwNRI7LnFJyAmP9_ja2wdy0fSgFTPWSl2MX1K7yxqfmTfaPT2-XY"
-VAPID_SUBJECT = "mailto:mrinalinisin@users.noreply.github.com"
-ALLOW_ORIGIN = "https://mrinalinisin.github.io"
+VAPID_SUBJECT = "mailto:mrinaliniisin@users.noreply.github.com"
+ALLOW_ORIGIN = "https://mrinaliniisin.github.io"
 
 # KV namespace that stores subscriptions + the latest message.
 # Create it with:  wrangler kv namespace create SUBS
