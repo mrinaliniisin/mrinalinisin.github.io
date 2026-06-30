@@ -32,9 +32,8 @@
 
     header {
       padding: 3rem 2rem 2rem;
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
-      border-bottom: 1px solid var(--border);
     }
 
     header h1 {
@@ -54,9 +53,8 @@
       flex-wrap: wrap;
       gap: 0.75rem;
       padding: 1.5rem 2rem;
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
-      border-bottom: 1px solid var(--border);
     }
 
     .legend-item {
@@ -88,21 +86,8 @@
       flex-shrink: 0;
     }
 
-    .map-wrapper {
-      max-width: 900px;
-      margin: 1.5rem auto;
-      padding: 0 2rem;
-    }
-
-    .map-wrapper iframe {
-      width: 100%;
-      height: 420px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-    }
-
     main {
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 2rem 4rem;
     }
@@ -114,13 +99,12 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
       margin: 2.5rem 0 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
     }
 
     .card-grid {
       display: grid;
       gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
 
     .card {
@@ -184,11 +168,10 @@
       padding: 2rem;
       color: var(--muted);
       font-size: 0.8rem;
-      border-top: 1px solid var(--border);
     }
 
     @media (max-width: 600px) {
-      header, .map-wrapper, main { padding-left: 1rem; padding-right: 1rem; }
+      header, .legend, main { padding-left: 1rem; padding-right: 1rem; }
       .card { grid-template-columns: 1fr; }
       .tag { justify-self: start; margin-top: 0.25rem; }
     }
@@ -202,20 +185,12 @@
 </header>
 
 <div class="legend">
-  <a class="legend-item" href="#to-buy"><div class="dot" style="background:var(--tag-buy)"></div> To buy</a>
+  <a class="legend-item" href="#to-buy"><div class="dot" style="background:var(--tag-buy)"></div> Priority stops</a>
   <a class="legend-item" href="#fun"><div class="dot" style="background:var(--tag-fun)"></div> Fun stop</a>
   <div class="legend-item"><div class="dot" style="background:var(--tag-browse)"></div> Browse</div>
   <a class="legend-item" href="#muji"><div class="dot" style="background:var(--tag-muji)"></div> MUJI</a>
   <a class="legend-item" href="#uniqlo"><div class="dot" style="background:var(--tag-uniqlo)"></div> Uniqlo</a>
   <a class="legend-item" href="#vivaia"><div class="dot" style="background:var(--tag-vivaia)"></div> VIVAIA</a>
-</div>
-
-<div class="map-wrapper">
-  <iframe
-    src="https://maps.google.com/maps?q=Tsim+Sha+Tsui,+Hong+Kong&output=embed&z=13"
-    loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade"
-  ></iframe>
 </div>
 
 <main>
@@ -227,7 +202,7 @@
   </ul>
 
   <!-- TO BUY -->
-  <div class="section-title" id="to-buy">To buy</div>
+  <div class="section-title" id="to-buy">Priority stops</div>
   <div class="card-grid">
 
     <div class="card">
