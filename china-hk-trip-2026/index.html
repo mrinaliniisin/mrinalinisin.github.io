@@ -71,6 +71,12 @@
     a.tag { text-decoration: none; cursor: pointer; }
     html { scroll-behavior: smooth; }
     .section-title { scroll-margin-top: 1rem; }
+    details.collapsible { scroll-margin-top: 1rem; }
+    details.collapsible > summary.section-title { cursor: pointer; list-style: none; }
+    summary.section-title::-webkit-details-marker { display: none; }
+    summary.section-title::after { content: "\25B8"; float: right; font-size: 0.85em;
+                                   color: var(--muted); font-family: sans-serif; }
+    details.collapsible[open] > summary.section-title::after { content: "\25BE"; }
     .look { margin: 0 0 1.5rem; }
     .look img { max-width: 320px; width: 100%; display: block; border-radius: 8px;
                 border: 1px solid var(--border); }
@@ -272,7 +278,8 @@
   </div>
 
   <!-- VIVAIA -->
-  <div class="section-title" id="vivaia">VIVAIA — All Locations</div>
+  <details class="collapsible" id="vivaia">
+  <summary class="section-title">VIVAIA — All Locations</summary>
   <div class="card-grid">
 
     <div class="card">
@@ -312,6 +319,7 @@
     </div>
 
   </div>
+  </details>
 
   <!-- FUN STOPS -->
   <div class="section-title" id="fun">Fun Stops</div>
@@ -365,7 +373,8 @@
   </div>
 
   <!-- MUJI -->
-  <div class="section-title" id="muji">MUJI — All Locations</div>
+  <details class="collapsible" id="muji">
+  <summary class="section-title">MUJI — All Locations</summary>
   <div class="card-grid">
 
     <div class="card">
@@ -432,6 +441,7 @@
     </div>
 
   </div>
+  </details>
 
   <!-- UNIQLO -->
   <div class="section-title" id="uniqlo">Uniqlo — All Locations</div>
@@ -515,5 +525,14 @@
   Built for Sindhu's HK trip · Jul 2026
 </footer>
 
+<script>
+  // Open a collapsed section if its anchor is targeted (e.g. via a legend link).
+  function openTargetDetails() {
+    const el = location.hash && document.getElementById(location.hash.slice(1));
+    if (el && el.tagName === "DETAILS") el.open = true;
+  }
+  addEventListener("hashchange", openTargetDetails);
+  openTargetDetails();
+</script>
 </body>
 </html>
