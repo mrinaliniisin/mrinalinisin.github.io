@@ -167,6 +167,23 @@ def post_files():
             if n.endswith(".html") and n != "index.html"]
 
 
+def list_posts():
+    """Slug + title + date for every post, newest first (for the editor picker)."""
+    out = []
+    for path in post_files():
+        with open(path, encoding="utf-8") as f:
+            src = f.read()
+        title = re.search(r'name="post-title" content="([^"]*)"', src)
+        date = re.search(r'name="post-date" content="([^"]*)"', src)
+        out.append({
+            "slug": os.path.basename(path)[:-5],
+            "title": html.unescape(title.group(1)) if title else os.path.basename(path)[:-5],
+            "date": date.group(1) if date else "",
+        })
+    out.sort(key=lambda p: (p["date"], p["slug"]), reverse=True)
+    return out
+
+
 def list_images():
     if not os.path.isdir(IMAGES):
         return []
@@ -267,6 +284,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200 if post else 404, post or {"error": "not found"})
         if self.path == "/api/images":
             return self._json(200, {"images": list_images()})
+        if self.path == "/api/posts":
+            return self._json(200, {"posts": list_posts()})
         return super().do_GET()
 
     def do_POST(self):

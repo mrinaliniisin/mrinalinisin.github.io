@@ -14,6 +14,8 @@
     .bar input { font: inherit; border: 1px solid #444; border-radius: 6px;
                  background: #2a2a2a; color: #fff; padding: 7px 10px; }
     .bar input.title { flex: 1; min-width: 220px; font-size: 15px; font-weight: 600; }
+    .bar select { font: inherit; border: 1px solid #444; border-radius: 6px;
+                  background: #2a2a2a; color: #fff; padding: 7px 10px; max-width: 200px; }
     .bar button { font: inherit; background: #2d5a27; color: #fff; border: 0;
                   border-radius: 6px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
     .bar button:hover { filter: brightness(1.12); }
@@ -48,6 +50,7 @@
   <div class="bar">
     <input class="title" id="title" placeholder="Post title" autocomplete="off">
     <input type="date" id="date">
+    <select id="open" title="Open an existing post to edit"><option value="">Open post…</option></select>
     <button id="save">Save</button>
     <a class="navlink" href="/gallery.html">Images</a>
     <span class="status" id="status">Draft &middot; Save writes to /blog, then <code>git push</code> to publish</span>
@@ -157,16 +160,47 @@
       render();
     });
 
-    // Edit an existing post via ?p=slug
-    const slug = new URLSearchParams(location.search).get('p');
-    if (slug) {
-      fetch('/api/load?p=' + encodeURIComponent(slug))
+    // Load an existing post — from ?p=slug or the "Open post…" picker.
+    function loadPost(slug, push) {
+      return fetch('/api/load?p=' + encodeURIComponent(slug))
         .then(r => r.ok ? r.json() : Promise.reject())
-        .then(p => { $('title').value = p.title; $('date').value = p.date || $('date').value;
-                     $('md').value = p.markdown; render();
-                     $('status').textContent = 'Editing ' + slug; })
+        .then(p => {
+          $('title').value = p.title;
+          $('date').value = p.date || $('date').value;
+          $('md').value = p.markdown;
+          render(); dirty = false;
+          $('open').value = slug;
+          $('status').textContent = 'Editing ' + slug;
+          if (push) history.replaceState(null, '', '?p=' + slug);
+        })
         .catch(() => { $('status').textContent = 'Could not load "' + slug + '"'; });
     }
+
+    // Populate the "Open post…" picker with existing posts (newest first).
+    fetch('/api/posts').then(r => r.json()).then(d => {
+      for (const p of d.posts) {
+        const o = document.createElement('option');
+        o.value = p.slug;
+        o.textContent = p.title + (p.date ? ' · ' + p.date : '');
+        $('open').appendChild(o);
+      }
+      const cur = new URLSearchParams(location.search).get('p');
+      if (cur) $('open').value = cur;
+    }).catch(() => {});
+
+    $('open').addEventListener('change', () => {
+      const s = $('open').value;
+      const cur = new URLSearchParams(location.search).get('p') || '';
+      if (!s) return;
+      if (dirty && !confirm('Discard unsaved changes and open this post?')) {
+        $('open').value = cur; return;
+      }
+      loadPost(s, true);
+    });
+
+    // Open the post named in ?p=slug on first load.
+    const initialSlug = new URLSearchParams(location.search).get('p');
+    if (initialSlug) loadPost(initialSlug, false);
 
     $('save').addEventListener('click', async () => {
       const title = $('title').value.trim();
@@ -184,6 +218,13 @@
         $('status').innerHTML = 'Saved &rarr; <a href="' + d.url + '" target="_blank">' +
                                 d.url + '</a> &middot; now <code>git push</code>';
         history.replaceState(null, '', '?p=' + d.slug);
+        // Keep the picker in sync (a brand-new post won't be in the list yet).
+        if (![...$('open').options].some(o => o.value === d.slug)) {
+          const o = document.createElement('option'); o.value = d.slug;
+          o.textContent = title + ($('date').value ? ' · ' + $('date').value : '');
+          $('open').appendChild(o);
+        }
+        $('open').value = d.slug;
         dirty = false;
       } catch (e) { $('status').textContent = 'Error: ' + e.message; }
     });
