@@ -66,6 +66,11 @@
       font-size: 0.8rem;
       color: var(--muted);
     }
+    a.legend-item { text-decoration: none; cursor: pointer; }
+    a.legend-item:hover { color: var(--ink); text-decoration: underline; }
+    a.tag { text-decoration: none; cursor: pointer; }
+    html { scroll-behavior: smooth; }
+    .section-title { scroll-margin-top: 1rem; }
 
     .dot {
       width: 10px;
@@ -186,12 +191,12 @@
 </header>
 
 <div class="legend">
-  <div class="legend-item"><div class="dot" style="background:var(--tag-buy)"></div> Must buy</div>
-  <div class="legend-item"><div class="dot" style="background:var(--tag-fun)"></div> Fun stop</div>
+  <a class="legend-item" href="#priority"><div class="dot" style="background:var(--tag-buy)"></div> Must buy</a>
+  <a class="legend-item" href="#fun"><div class="dot" style="background:var(--tag-fun)"></div> Fun stop</a>
   <div class="legend-item"><div class="dot" style="background:var(--tag-browse)"></div> Browse</div>
-  <div class="legend-item"><div class="dot" style="background:var(--tag-muji)"></div> MUJI</div>
-  <div class="legend-item"><div class="dot" style="background:var(--tag-uniqlo)"></div> Uniqlo</div>
-  <div class="legend-item"><div class="dot" style="background:var(--tag-vivaia)"></div> VIVAIA</div>
+  <a class="legend-item" href="#muji"><div class="dot" style="background:var(--tag-muji)"></div> MUJI</a>
+  <a class="legend-item" href="#uniqlo"><div class="dot" style="background:var(--tag-uniqlo)"></div> Uniqlo</a>
+  <a class="legend-item" href="#vivaia"><div class="dot" style="background:var(--tag-vivaia)"></div> VIVAIA</a>
 </div>
 
 <div class="map-wrapper">
@@ -205,7 +210,7 @@
 <main>
 
   <!-- PRIORITY SHOPS -->
-  <div class="section-title">Priority Shops</div>
+  <div class="section-title" id="priority">Priority Shops</div>
   <div class="card-grid">
 
     <div class="card">
@@ -214,7 +219,7 @@
         <div class="card-note"><span class="buy-item">BUY: Puma Punku Uni Eco Leather Sandals, Grey, size 41</span></div>
         <div class="hours">Opens 12pm · Fri/Sat till 10pm · +852 9838 1937</div>
       </div>
-      <span class="tag tag-buy">Buy</span>
+      <a class="tag tag-buy" href="#priority">Buy</a>
     </div>
 
     <div class="card">
@@ -223,7 +228,7 @@
         <div class="card-note"><span class="buy-item">BUY: Summit Duffle Medium, Black / Tech Sateen — HK$1,150</span><br>⚠️ Listed as pre-order online — call +852 6336 7754 to confirm in-store stock before visiting.</div>
         <div class="hours">Opens 11am–9:30pm</div>
       </div>
-      <span class="tag tag-buy">Buy</span>
+      <a class="tag tag-buy" href="#priority">Buy</a>
     </div>
 
     <div class="card">
@@ -231,7 +236,7 @@
         <div class="card-name">BellaMafia — Lai Chi Kok</div>
         <div class="card-note">Unit 1109, 11/F, 77 Wing Hong St. Commercial unit — call ahead, no listed hours.</div>
       </div>
-      <span class="tag tag-buy">Buy</span>
+      <a class="tag tag-buy" href="#priority">Buy</a>
     </div>
 
     <div class="card">
@@ -240,7 +245,7 @@
         <div class="card-note"><span class="buy-item">BUY: Mom Denim Shorts</span><br>Same building as Uniqlo (LCX Level 3). Best stop for the Jul 3 TST window.</div>
         <div class="hours">Opens 12pm–8pm · +852 2730 6939</div>
       </div>
-      <span class="tag tag-buy">Buy</span>
+      <a class="tag tag-buy" href="#priority">Buy</a>
     </div>
 
     <div class="card">
@@ -249,7 +254,7 @@
         <div class="card-note"><span class="buy-item">BUY: Mom Denim Shorts</span> · Fallback if near Wanta/Pleasure Point.</div>
         <div class="hours">Opens 11am–9:30pm · +852 2677 4322</div>
       </div>
-      <span class="tag tag-buy">Buy</span>
+      <a class="tag tag-buy" href="#priority">Buy</a>
     </div>
 
     <div class="card">
@@ -258,13 +263,13 @@
         <div class="card-note"><span class="buy-item">BUY: Mom Denim Shorts</span> · Out of the way from tour route.</div>
         <div class="hours">Opens 11am–8pm · +852 3188 4720</div>
       </div>
-      <span class="tag tag-buy">Buy</span>
+      <a class="tag tag-buy" href="#priority">Buy</a>
     </div>
 
   </div>
 
   <!-- VIVAIA -->
-  <div class="section-title">VIVAIA — All Locations</div>
+  <div class="section-title" id="vivaia">VIVAIA — All Locations</div>
   <div class="card-grid">
 
     <div class="card">
@@ -273,7 +278,7 @@
         <div class="card-note">Gateway Arcade, Shop L2-2115, Canton Rd. Same complex as Uniqlo &amp; American Eagle Harbour City — easy combine on the Jul 3 TST window.</div>
         <div class="hours">+852 6372 8660</div>
       </div>
-      <span class="tag tag-vivaia">VIVAIA</span>
+      <a class="tag tag-vivaia" href="#vivaia">VIVAIA</a>
     </div>
 
     <div class="card">
@@ -282,7 +287,7 @@
         <div class="card-note">Shop B222, B2/F, 18 Hanoi Rd. Same mall as Topologie — pair the two TST stops.</div>
         <div class="hours">11am–10pm · +852 9238 8291</div>
       </div>
-      <span class="tag tag-vivaia">VIVAIA</span>
+      <a class="tag tag-vivaia" href="#vivaia">VIVAIA</a>
     </div>
 
     <div class="card">
@@ -291,7 +296,7 @@
         <div class="card-note">Shop 150, 1/F, 18 Taikoo Shing Rd. Same mall as MUJI Cityplaza.</div>
         <div class="hours">11am–9pm · +852 6954 3016</div>
       </div>
-      <span class="tag tag-vivaia">VIVAIA</span>
+      <a class="tag tag-vivaia" href="#vivaia">VIVAIA</a>
     </div>
 
     <div class="card">
@@ -300,13 +305,13 @@
         <div class="card-note">Shop 535, L5, Phase I. Far north in Sha Tin — out of the way unless you're up there.</div>
         <div class="hours">Mon–Fri 11am–9pm · Sat–Sun &amp; PH 10:30am–9:30pm</div>
       </div>
-      <span class="tag tag-vivaia">VIVAIA</span>
+      <a class="tag tag-vivaia" href="#vivaia">VIVAIA</a>
     </div>
 
   </div>
 
   <!-- FUN STOPS -->
-  <div class="section-title">Fun Stops</div>
+  <div class="section-title" id="fun">Fun Stops</div>
   <div class="card-grid">
 
     <div class="card">
@@ -315,7 +320,7 @@
         <div class="card-note">G40 Peninsula Centre, 67 Mody Rd. Close to Star Avenue / Clock Tower — easy Jul 3 detour.</div>
         <div class="hours">11am–2am · +852 2311 0282</div>
       </div>
-      <span class="tag tag-fun">Fun</span>
+      <a class="tag tag-fun" href="#fun">Fun</a>
     </div>
 
     <div class="card">
@@ -324,7 +329,7 @@
         <div class="card-note">1/F, 105 Woosung St. HK's largest adult products chain — 15 locations citywide.</div>
         <div class="hours">11am–midnight · +852 2104 6544</div>
       </div>
-      <span class="tag tag-fun">Fun</span>
+      <a class="tag tag-fun" href="#fun">Fun</a>
     </div>
 
     <div class="card">
@@ -333,7 +338,7 @@
         <div class="card-note">2/F, 28 Russell St. Large Japanese toy selection.</div>
         <div class="hours">11am–midnight · +852 6468 8081</div>
       </div>
-      <span class="tag tag-fun">Fun</span>
+      <a class="tag tag-fun" href="#fun">Fun</a>
     </div>
 
     <div class="card">
@@ -342,7 +347,7 @@
         <div class="card-note">1/F Unit J, 1 Fu Ming St. Neon vibes, tea seating area. Next door to Wanta.</div>
         <div class="hours">12pm–9pm · +852 5744 7779</div>
       </div>
-      <span class="tag tag-fun">Fun</span>
+      <a class="tag tag-fun" href="#fun">Fun</a>
     </div>
 
     <div class="card">
@@ -351,152 +356,152 @@
         <div class="card-note">3/F Winning House, 10-16 Cochrane St. Also has a TST branch.</div>
         <div class="hours">+852 2110 0205</div>
       </div>
-      <span class="tag tag-fun">Fun</span>
+      <a class="tag tag-fun" href="#fun">Fun</a>
     </div>
 
   </div>
 
   <!-- MUJI -->
-  <div class="section-title">MUJI — All Locations</div>
+  <div class="section-title" id="muji">MUJI — All Locations</div>
   <div class="card-grid">
 
     <div class="card">
       <div><div class="card-name">MUJI Mira Place — TST</div>
       <div class="card-note">Nathan Rd 132, B103–B115. Café inside.</div>
       <div class="hours">11am–9:30pm · +852 3971 3160</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">MUJI Lee Theatre — Causeway Bay</div>
       <div class="card-note">3/F, 99 Percival St.</div>
       <div class="hours">11am–9:30pm (Fri/Sat till 10pm) · +852 3971 3120</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">MUJI Windsor House — Causeway Bay</div>
       <div class="card-note">311 Gloucester Rd. Flagship with café and craft stalls.</div>
       <div class="hours">11am–9:30pm</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">MUJI Langham Place — Mong Kok</div>
       <div class="card-note">8 Argyle St, 7/F. Near Flower Mountain.</div>
       <div class="hours">11am–9:30pm (Sat/Sun till 10pm) · +852 3971 3140</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">MUJI Festival Walk — Kowloon Tong</div>
       <div class="card-note">LG1, 80 Tat Chee Ave. Large flagship with café.</div>
       <div class="hours">11am–10pm · +852 3971 3208</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">MUJI MOKO — Prince Edward</div>
       <div class="card-note">Shop 237, 2/F, 193 Prince Edward Rd W.</div>
       <div class="hours">11am–9:30pm (Sat/Sun till 10pm) · +852 3971 3280</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">MUJI Pacific Place — Admiralty</div>
       <div class="card-note">88 Queensway. Spacious; sells groceries and essential oils too.</div>
       <div class="hours">11am–9:30pm · +852 3973 8370</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">MUJI Cityplaza — Quarry Bay</div>
       <div class="card-note">2F & 3F, 18 Taikoo Shing Rd. Two floors, recently expanded.</div>
       <div class="hours">11am–9:30pm · +852 3971 3170</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">MUJI To Go — Hong Kong Station</div>
       <div class="card-note">L3, HOK 47. Small transit format behind MTR gates. Good for snacks.</div>
       <div class="hours">10am–9pm · +852 3971 3290</div></div>
-      <span class="tag tag-muji">MUJI</span>
+      <a class="tag tag-muji" href="#muji">MUJI</a>
     </div>
 
   </div>
 
   <!-- UNIQLO -->
-  <div class="section-title">Uniqlo — All Locations</div>
+  <div class="section-title" id="uniqlo">Uniqlo — All Locations</div>
   <div class="card-grid">
 
     <div class="card">
       <div><div class="card-name">Uniqlo Harbour City — TST</div>
       <div class="card-note">3/F, Harbour City, Canton Rd. Same building as AE Harbour City.</div>
       <div class="hours">11am–10pm · +852 2175 0810</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo Mira Place — TST</div>
       <div class="card-note">132 Nathan Rd. Same building as MUJI Mira Place.</div>
       <div class="hours">11am–10pm (Fri/Sat till 11pm) · +852 2314 8886</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo Lee Theatre — Causeway Bay</div>
       <div class="card-note">99 Percival St. Same building as MUJI Lee Theatre. Large multi-floor store with custom embroidery.</div>
       <div class="hours">11am–10pm (Fri/Sat till 11pm) · +852 2577 5811</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo MOKO — Prince Edward</div>
       <div class="card-note">Shop 217-235, L2, 193 Prince Edward Rd W.</div>
       <div class="hours">11am–10pm · +852 2777 7802</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo V Walk — Sham Shui Po</div>
       <div class="card-note">L2-35, 28 Sham Mong Rd.</div>
       <div class="hours">11am–10pm · +852 2878 8773</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo Kai Tak Mall — Kowloon City</div>
       <div class="card-note">Kai Tak Sports Park, M1-107 to M1-110.</div>
       <div class="hours">11am–10pm · +852 2365 7966</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo The Southside — Wong Chuk Hang</div>
       <div class="card-note">2/F 214-221, Wong Chuk Hang.</div>
       <div class="hours">11am–10pm · +852 2512 8698</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo Metroplaza — Kwai Chung</div>
       <div class="card-note">L3, 336, 223 Kwong Fuk Rd.</div>
       <div class="hours">11am–10pm · +852 2661 0618</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo Metro City Plaza — Tseung Kwan O</div>
       <div class="card-note">Shop 1055-62, 8 Yan King Rd. Far east — unlikely to be on your route.</div>
       <div class="hours">11am–10pm · +852 2311 2823</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
     <div class="card">
       <div><div class="card-name">Uniqlo Tuen Mun Town Plaza — Tuen Mun</div>
       <div class="card-note">L2, 2001-2023, Tuen Mun. Far west — unlikely to be on your route.</div>
       <div class="hours">10am–10pm · +852 2618 4311</div></div>
-      <span class="tag tag-uniqlo">Uniqlo</span>
+      <a class="tag tag-uniqlo" href="#uniqlo">Uniqlo</a>
     </div>
 
   </div>
