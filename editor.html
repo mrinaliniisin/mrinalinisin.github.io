@@ -15,7 +15,10 @@
                  background: #2a2a2a; color: #fff; padding: 7px 10px; }
     .bar input.title { flex: 1; min-width: 220px; font-size: 15px; font-weight: 600; }
     .bar select { font: inherit; border: 1px solid #444; border-radius: 6px;
-                  background: #2a2a2a; color: #fff; padding: 7px 10px; max-width: 200px; }
+                  background: #2a2a2a; color: #fff; padding: 7px 10px; max-width: 240px; }
+    .bar label.toggle { display: inline-flex; align-items: center; gap: 6px;
+                        font-size: 13px; color: #d8d4cd; cursor: pointer; user-select: none; }
+    .bar label.toggle input { width: 15px; height: 15px; accent-color: #2d5a27; cursor: pointer; }
     .bar button { font: inherit; background: #2d5a27; color: #fff; border: 0;
                   border-radius: 6px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
     .bar button:hover { filter: brightness(1.12); }
@@ -50,7 +53,10 @@
   <div class="bar">
     <input class="title" id="title" placeholder="Post title" autocomplete="off">
     <input type="date" id="date">
-    <select id="open" title="Open an existing post to edit"><option value="">Open post…</option></select>
+    <label class="toggle" title="Save as a standalone page (linked from Home) instead of a dated blog post">
+      <input type="checkbox" id="ispage"> Page
+    </label>
+    <select id="open" title="Open an existing post or page to edit"><option value="">Open…</option></select>
     <button id="save">Save</button>
     <a class="navlink" href="/gallery.html">Images</a>
     <a class="navlink" href="/page-editor.html">Pages</a>
@@ -161,69 +167,120 @@
       render();
     });
 
-    // Load an existing post — from ?p=slug or the "Open post…" picker.
-    function loadPost(slug, push) {
-      return fetch('/api/load?p=' + encodeURIComponent(slug))
+    // The editor handles two kinds of document:
+    //   post — a dated blog entry in /blog/, listed on the blog index
+    //   page — a standalone markdown page at the repo root, linked from Home
+    // The "Page" toggle picks the kind for a NEW doc; opening an existing one
+    // sets it from the picker. currentSlug keeps an opened page's filename
+    // stable across re-saves, so its homepage link doesn't break.
+    let currentKind = 'post';
+    let currentSlug = '';
+
+    function setKind(kind) {
+      currentKind = kind;
+      $('ispage').checked = (kind === 'page');
+      $('date').style.display = (kind === 'page') ? 'none' : '';
+    }
+
+    $('ispage').addEventListener('change', () => {
+      setKind($('ispage').checked ? 'page' : 'post');
+      markDirty();
+    });
+
+    // Load an existing post or page — from the URL or the "Open…" picker.
+    function loadDoc(kind, slug, push) {
+      const api = kind === 'page' ? '/api/md-page?p=' : '/api/load?p=';
+      return fetch(api + encodeURIComponent(slug))
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(p => {
+          setKind(kind);
+          currentSlug = p.slug || slug;
           $('title').value = p.title;
-          $('date').value = p.date || $('date').value;
+          if (kind === 'post') $('date').value = p.date || $('date').value;
           $('md').value = p.markdown;
           render(); dirty = false;
           $('open').value = slug;
-          $('status').textContent = 'Editing ' + slug;
-          if (push) history.replaceState(null, '', '?p=' + slug);
+          $('status').textContent = 'Editing ' + (kind === 'page' ? 'page ' : '') + slug;
+          if (push) history.replaceState(null, '', '?' + (kind === 'page' ? 'page' : 'p') + '=' + slug);
         })
         .catch(() => { $('status').textContent = 'Could not load "' + slug + '"'; });
     }
 
-    // Populate the "Open post…" picker with existing posts (newest first).
-    fetch('/api/posts').then(r => r.json()).then(d => {
-      for (const p of d.posts) {
+    // Populate the "Open…" picker: pages first, then posts (newest first), in
+    // labelled groups. Each option remembers its kind so opening sets the mode.
+    Promise.all([
+      fetch('/api/md-pages').then(r => r.json()).catch(() => ({ pages: [] })),
+      fetch('/api/posts').then(r => r.json()).catch(() => ({ posts: [] })),
+    ]).then(([G, P]) => {
+      if (G.pages && G.pages.length) {
+        const og = document.createElement('optgroup'); og.label = 'Pages';
+        for (const p of G.pages) {
+          const o = document.createElement('option');
+          o.value = p.slug; o.dataset.kind = 'page';
+          o.textContent = p.title + ' · ' + p.slug + '.html';
+          og.appendChild(o);
+        }
+        $('open').appendChild(og);
+      }
+      const ogp = document.createElement('optgroup'); ogp.label = 'Posts';
+      for (const p of (P.posts || [])) {
         const o = document.createElement('option');
-        o.value = p.slug;
+        o.value = p.slug; o.dataset.kind = 'post';
         o.textContent = p.title + (p.date ? ' · ' + p.date : '');
-        $('open').appendChild(o);
+        ogp.appendChild(o);
       }
-      const cur = new URLSearchParams(location.search).get('p');
-      if (cur) $('open').value = cur;
-    }).catch(() => {});
+      $('open').appendChild(ogp);
 
-    $('open').addEventListener('change', () => {
-      const s = $('open').value;
-      const cur = new URLSearchParams(location.search).get('p') || '';
-      if (!s) return;
-      if (dirty && !confirm('Discard unsaved changes and open this post?')) {
-        $('open').value = cur; return;
-      }
-      loadPost(s, true);
+      // Open whatever the URL points at, now that the options exist.
+      const params = new URLSearchParams(location.search);
+      if (params.get('page')) loadDoc('page', params.get('page'), false);
+      else if (params.get('p')) loadDoc('post', params.get('p'), false);
     });
 
-    // Open the post named in ?p=slug on first load.
-    const initialSlug = new URLSearchParams(location.search).get('p');
-    if (initialSlug) loadPost(initialSlug, false);
+    $('open').addEventListener('change', () => {
+      const opt = $('open').selectedOptions[0];
+      if (!opt || !opt.value) return;
+      const params = new URLSearchParams(location.search);
+      const cur = params.get('page') || params.get('p') || '';
+      if (dirty && !confirm('Discard unsaved changes and open this?')) {
+        $('open').value = cur; return;
+      }
+      loadDoc(opt.dataset.kind || 'post', opt.value, true);
+    });
 
     $('save').addEventListener('click', async () => {
       const title = $('title').value.trim();
       if (!title) { $('status').textContent = 'Add a title first.'; $('title').focus(); return; }
+      const isPage = $('ispage').checked;
       $('status').textContent = 'Saving…';
       try {
-        const r = await fetch('/api/save', {
+        const payload = isPage
+          ? { title, slug: (currentKind === 'page' ? currentSlug : ''),
+              markdown: $('md').value, html: toBody($('md').value) }
+          : { title, date: $('date').value,
+              markdown: $('md').value, html: toBody($('md').value) };
+        const r = await fetch(isPage ? '/api/save-page' : '/api/save', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, date: $('date').value,
-                                 markdown: $('md').value,
-                                 html: toBody($('md').value) })
+          body: JSON.stringify(payload)
         });
         const d = await r.json();
         if (!r.ok) throw new Error(d.error || r.status);
+        currentKind = isPage ? 'page' : 'post';
+        currentSlug = d.slug;
         $('status').innerHTML = 'Saved &rarr; <a href="' + d.url + '" target="_blank">' +
                                 d.url + '</a> &middot; now <code>git push</code>';
-        history.replaceState(null, '', '?p=' + d.slug);
-        // Keep the picker in sync (a brand-new post won't be in the list yet).
-        if (![...$('open').options].some(o => o.value === d.slug)) {
-          const o = document.createElement('option'); o.value = d.slug;
-          o.textContent = title + ($('date').value ? ' · ' + $('date').value : '');
-          $('open').appendChild(o);
+        history.replaceState(null, '', '?' + (isPage ? 'page' : 'p') + '=' + d.slug);
+        // Keep the picker in sync (a brand-new doc won't be in its list yet).
+        const grpLabel = isPage ? 'Pages' : 'Posts';
+        const kind = isPage ? 'page' : 'post';
+        if (![...$('open').options].some(o => o.value === d.slug && (o.dataset.kind || 'post') === kind)) {
+          let og = [...$('open').querySelectorAll('optgroup')].find(g => g.label === grpLabel);
+          if (!og) { og = document.createElement('optgroup'); og.label = grpLabel; $('open').appendChild(og); }
+          const o = document.createElement('option');
+          o.value = d.slug; o.dataset.kind = kind;
+          o.textContent = title + (isPage ? ' · ' + d.slug + '.html'
+                                          : ($('date').value ? ' · ' + $('date').value : ''));
+          og.appendChild(o);
         }
         $('open').value = d.slug;
         dirty = false;

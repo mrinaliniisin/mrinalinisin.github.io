@@ -40,10 +40,10 @@ IMAGES = os.path.join(BLOG, "images")
 # rebuilt from data, so a hand-edit would be lost on the next regenerate.
 EDITABLE_PAGES = [
     "index.html",
-    "send-to-anytype.html",
     "china-hk-trip-2026/index.html",
     "china-hk-trip-2026/bellamafia.html",
 ]
+# (send-to-anytype.html is a markdown page now — edit it in editor.html, not here.)
 
 # Clipboard images arrive as a MIME type, not a filename, so map it to a suffix.
 IMAGE_EXT = {
@@ -69,6 +69,37 @@ POST_TEMPLATE = """<!DOCTYPE html>
       <p class="post-meta">{date_human}</p>
 <!--EDIT:post:b64:{b64}-->
       <div class="post-body" data-edit-id="post" data-edit-file="blog/{slug}.html">
+{body_html}
+      </div>
+<!--/EDIT:post-->
+    </article>
+  </main>
+  <footer>&copy; 2026 Mrinalini S · Code licensed under MIT</footer>
+</body>
+</html>
+"""
+
+# A standalone "page" (e.g. send-to-anytype.html): same markdown round-trip as a
+# post, but it lives at the repo root, links Home instead of "All posts", carries
+# no date, and is NOT added to the blog index. The page-kind meta marks it so the
+# editor can tell a markdown page apart from a post or hand-built HTML.
+PAGE_TEMPLATE = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title_attr} · Mrinalini S</title>
+  <meta name="page-title" content="{title_attr}">
+  <meta name="page-kind" content="standalone">
+  <link rel="stylesheet" href="/assets/blog.css">
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/">← Home</a>
+    <article>
+      <h1 class="post-title">{title_html}</h1>
+<!--EDIT:post:b64:{b64}-->
+      <div class="post-body" data-edit-id="post" data-edit-file="{slug}.html">
 {body_html}
       </div>
 <!--/EDIT:post-->
@@ -171,6 +202,57 @@ def load_post(slug):
         "date": date.group(1) if date else "",
         "markdown": markdown,
     }
+
+
+def write_md_page(title, markdown, body_html, slug=None):
+    """Render a standalone markdown page to <slug>.html at the repo root.
+    An explicit slug (from the editor when re-saving) keeps the filename — and
+    thus the homepage link — stable even if the title changes."""
+    slug = slugify(slug or title)
+    body_html = re.sub(r"^\s*<h1\b[^>]*>.*?</h1>\s*", "", body_html,
+                       count=1, flags=re.S | re.I)
+    b64 = base64.b64encode(markdown.encode("utf-8")).decode("ascii")
+    page = PAGE_TEMPLATE.format(
+        title_attr=html.escape(title, quote=True),
+        title_html=html.escape(title),
+        b64=b64, slug=slug, body_html=body_html)
+    with open(os.path.join(ROOT, slug + ".html"), "w", encoding="utf-8") as f:
+        f.write(page)
+    return slug
+
+
+def load_md_page(slug):
+    path = os.path.join(ROOT, slugify(slug) + ".html")
+    if not os.path.isfile(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        src = f.read()
+    if 'name="page-kind"' not in src:   # only round-trip pages this tool authored
+        return None
+    title = re.search(r'name="page-title" content="([^"]*)"', src)
+    b64 = re.search(r"<!--EDIT:post:b64:(.*?)-->", src, re.S)
+    return {
+        "slug": slugify(slug),
+        "title": html.unescape(title.group(1)) if title else "",
+        "markdown": base64.b64decode(b64.group(1)).decode("utf-8") if b64 else "",
+    }
+
+
+def list_md_pages():
+    """Every standalone markdown page at the repo root (for the editor picker)."""
+    out = []
+    for n in sorted(os.listdir(ROOT)):
+        path = os.path.join(ROOT, n)
+        if not n.endswith(".html") or not os.path.isfile(path):
+            continue
+        with open(path, encoding="utf-8") as f:
+            src = f.read()
+        if 'name="page-kind" content="standalone"' not in src:
+            continue
+        title = re.search(r'name="page-title" content="([^"]*)"', src)
+        out.append({"slug": n[:-5],
+                    "title": html.unescape(title.group(1)) if title else n[:-5]})
+    return out
 
 
 def post_files():
@@ -354,6 +436,12 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, {"images": list_images()})
         if self.path == "/api/posts":
             return self._json(200, {"posts": list_posts()})
+        if self.path == "/api/md-pages":
+            return self._json(200, {"pages": list_md_pages()})
+        if self.path.startswith("/api/md-page?"):
+            slug = parse_qs(urlparse(self.path).query).get("p", [""])[0]
+            page = load_md_page(slug) if slug else None
+            return self._json(200 if page else 404, page or {"error": "not found"})
         if self.path == "/api/pages":
             return self._json(200, {"pages": list_pages()})
         if self.path.startswith("/api/page?"):
@@ -383,6 +471,15 @@ class Handler(SimpleHTTPRequestHandler):
                 slug = write_post(title, date_iso, d.get("markdown", ""), d.get("html", ""))
                 return self._json(200, {"ok": True, "slug": slug,
                                         "url": "/blog/%s.html" % slug})
+            if self.path == "/api/save-page":
+                d = self._body()
+                title = (d.get("title") or "").strip()
+                if not title:
+                    return self._json(400, {"error": "title is required"})
+                slug = write_md_page(title, d.get("markdown", ""), d.get("html", ""),
+                                     slug=(d.get("slug") or "").strip() or None)
+                return self._json(200, {"ok": True, "slug": slug,
+                                        "url": "/%s.html" % slug})
             if self.path == "/api/page/save":
                 d = self._body()
                 return self._json(200, {"ok": True,
