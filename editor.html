@@ -287,6 +287,15 @@
       } catch (e) { $('status').textContent = 'Error: ' + e.message; }
     });
 
+    // Cmd/Ctrl+S saves, instead of the browser's "Save page…" dialog. Delegates
+    // to the Save button so the post/page logic lives in one place.
+    document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        $('save').click();
+      }
+    });
+
     // New post: warn before discarding an unsaved draft.
     $('fab').addEventListener('click', e => {
       if (dirty && !confirm('Discard unsaved changes and start a new post?')) {
