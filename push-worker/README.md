@@ -38,7 +38,7 @@ wrangler secret put VAPID_PRIVATE
 wrangler secret put BROADCAST_SECRET
 
 wrangler deploy
-#   -> note the deployed URL, e.g. https://mrinalinisin-push.<you>.workers.dev
+#   -> note the deployed URL, e.g. https://mrinaliniisin-push.<you>.workers.dev
 ```
 
 ### 2. Point the site at the Worker
@@ -47,7 +47,7 @@ Set the deployed URL as the `WORKER` constant in **both**:
 - `sw.js`
 - `push.js`
 
-(They currently say `https://mrinalinisin-push.YOUR-SUBDOMAIN.workers.dev`.)
+(They currently say `https://mrinaliniisin-push.YOUR-SUBDOMAIN.workers.dev`.)
 
 If your site origin ever changes, update `ALLOW_ORIGIN` in `wrangler.toml` and
 re-`wrangler deploy`.

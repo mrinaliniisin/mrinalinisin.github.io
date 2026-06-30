@@ -1,7 +1,7 @@
 // Subscribe/unsubscribe UI for push notifications on the homepage.
 (() => {
   // ▼ After deploying the Worker, set this to its URL (also set in sw.js).
-  const WORKER = "https://mrinalinisin-push.mustardseed.workers.dev";
+  const WORKER = "https://mrinaliniisin-push.mustardseed.workers.dev";
   // VAPID public key (safe to expose). Must match the Worker's VAPID_PUBLIC.
   const VAPID_PUBLIC = "BBl7CjwTobyvrKM1fgcfhH5YujNqIR_5dA6EwNRI7LnFJyAmP9_ja2wdy0fSgFTPWSl2MX1K7yxqfmTfaPT2-XY";
 

@@ -3,7 +3,7 @@
 // on each push we fetch the latest card info from the push Worker's /latest.
 
 // ▼ After deploying the Worker, set this to its URL (also set in push.js).
-const WORKER = "https://mrinalinisin-push.mustardseed.workers.dev";
+const WORKER = "https://mrinaliniisin-push.mustardseed.workers.dev";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
@@ -25,7 +25,7 @@ self.addEventListener("push", event => {
 
     await self.registration.showNotification(data.title, {
       body: data.body,
-      tag: "mrinalinisin-new",          // collapse duplicates
+      tag: "mrinaliniisin-new",          // collapse duplicates
       data: { url: data.url || "/" },
     });
   })());

@@ -6,7 +6,7 @@ the current index.html against the previous commit (HEAD~1); for every card
 whose href is new, POSTs {title, body, url} to the push Worker's /broadcast.
 
 Env:
-  PUSH_WORKER_URL   e.g. https://mrinalinisin-push.<sub>.workers.dev
+  PUSH_WORKER_URL   e.g. https://mrinaliniisin-push.<sub>.workers.dev
   BROADCAST_SECRET  shared bearer token (matches the Worker secret)
   SITE_ORIGIN       optional, default https://mrinaliniisin.github.io
 """
@@ -62,7 +62,7 @@ def main():
             headers={"Content-Type": "application/json",
                      "Authorization": "Bearer " + secret,
                      # Cloudflare's edge 403s the default Python-urllib UA as a bot.
-                     "User-Agent": "mrinalinisin-notify/1.0"})
+                     "User-Agent": "mrinaliniisin-notify/1.0"})
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
                 print("notified %r -> %s %s" % (title, resp.status, resp.read().decode()))
